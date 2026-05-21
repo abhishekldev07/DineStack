@@ -74,4 +74,4 @@ pytest_cache/
 # Uploads
 # =========================
 DineStack_backup_uploads/
-uploads/menu_items/
+uploads/
