@@ -31,14 +31,14 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/uploads:/app/uploads
-      - ./backend/venv/main.py:/app/venv/main.py:ro
-      - ./backend/venv/analytics:/app/venv/analytics:ro
-      - ./backend/venv/auth:/app/venv/auth:ro
-      - ./backend/venv/database:/app/venv/database:ro
-      - ./backend/venv/models:/app/venv/models:ro
-      - ./backend/venv/routes:/app/venv/routes:ro
-      - ./backend/venv/schemas:/app/venv/schemas:ro
-      - ./backend/venv/utils:/app/venv/utils:ro
+      - ./backend/main.py:/app/main.py
+      - ./backend/analytics:/app/analytics
+      - ./backend/auth:/app/auth
+      - ./backend/database:/app/database
+      - ./backend/models:/app/models
+      - ./backend/routes:/app/routes
+      - ./backend/schemas:/app/schemas
+      - ./backend/utils:/app/utils
     command: >
       uvicorn main:app
       --host 0.0.0.0
@@ -62,5 +62,4 @@ services:
 
 volumes:
   postgres_data:
-  backend_uploads:
   frontend_node_modules:

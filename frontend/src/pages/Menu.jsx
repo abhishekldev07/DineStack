@@ -403,7 +403,12 @@ export default function Menu() {
                         {isCustomer ? (
                           <button
                             type="button"
-                            onClick={() => isAvailable && addToCart(item)}
+                            onClick={() => {
+                              if (!isAvailable) return;
+
+                              addToCart(item);
+                              navigate("/cart");
+                            }}
                             disabled={!isAvailable}
                             className="rounded-full bg-white px-5 py-2 text-xs font-bold text-slate-950 transition-all duration-300 hover:bg-amber-200 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
                           >

@@ -7,6 +7,7 @@ const STATUS_BADGE_CLASSES = {
 };
 
 const PAYMENT_BADGE_CLASSES = {
+  pending_payment: "order-badge--payment-pending",
   paid: "order-badge--payment-paid",
   pending: "order-badge--payment-pending",
   failed: "order-badge--payment-failed",
@@ -30,7 +31,9 @@ function getStatusBadgeClass(status) {
 }
 
 function getPaymentBadgeClass(paymentStatus) {
-  const normalizedPaymentStatus = normalizeBadgeValue(paymentStatus).toLowerCase();
+  const normalizedPaymentStatus = normalizeBadgeValue(paymentStatus)
+    .toLowerCase()
+    .replace(/^pending$/, "pending_payment");
 
   return PAYMENT_BADGE_CLASSES[normalizedPaymentStatus] || PAYMENT_BADGE_CLASSES.default;
 }

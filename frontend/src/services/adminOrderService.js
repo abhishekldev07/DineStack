@@ -2,14 +2,24 @@ import API from "./api";
 
 export const getAllOrders = async (
   page = 1,
-  limit = 10
+  limit = 10,
+  paymentStatus
 ) => {
 
   const token = localStorage.getItem("token");
 
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  });
+
+  if (paymentStatus) {
+    params.set("payment_status", paymentStatus);
+  }
+
   const response = await API.get(
 
-    `/all-orders?page=${page}&limit=${limit}`,
+    `/all-orders?${params.toString()}`,
 
     {
       headers: {
@@ -23,14 +33,24 @@ export const getAllOrders = async (
 export const getOrdersByStatus = async (
   status,
   page = 1,
-  limit = 10
+  limit = 10,
+  paymentStatus
 ) => {
 
   const token = localStorage.getItem("token");
 
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  });
+
+  if (paymentStatus) {
+    params.set("payment_status", paymentStatus);
+  }
+
   const response = await API.get(
 
-    `/orders/status/${status}?page=${page}&limit=${limit}`,
+    `/orders/status/${status}?${params.toString()}`,
 
     {
       headers: {

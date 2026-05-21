@@ -9,6 +9,28 @@ import {
 } from "../services/adminOrderService";
 import { updatePaymentStatus } from "../services/paymentService";
 
+const PAYMENT_FILTERS = [
+  { label: "All Payments", value: "all" },
+  { label: "Pending", value: "pending_payment" },
+  { label: "Paid", value: "paid" },
+  { label: "Failed", value: "failed" },
+  { label: "Refunded", value: "refunded" }
+];
+
+const normalizeStatusValue = (value) => {
+  return String(value ?? "").trim().toLowerCase();
+};
+
+const normalizePaymentStatusValue = (value) => {
+  const normalizedValue = normalizeStatusValue(value);
+
+  if (normalizedValue === "pending") {
+    return "pending_payment";
+  }
+
+  return normalizedValue;
+};
+
 const hasGpsCoordinates = (order) => {
   return order?.latitude !== null &&
     order?.latitude !== undefined &&
@@ -31,39 +53,35 @@ export default function AdminOrders() {
 
   const isSearchActive = useMemo(() => activeSearch !== null, [activeSearch]);
 
-  const applyLocalFilters = useCallback(
-    (incomingOrders) => {
-      return incomingOrders.filter((order) => {
-        const statusMatches =
-          statusFilter === "all" || order.status === statusFilter;
-        const paymentMatches =
-          paymentFilter === "all" || order.payment_status === paymentFilter;
-
-        return statusMatches && paymentMatches;
-      });
-    },
-    [statusFilter, paymentFilter]
-  );
-
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMessage("");
       let data;
 
+      const normalizedStatusFilter = normalizeStatusValue(statusFilter);
+      const normalizedPaymentFilter = normalizePaymentStatusValue(paymentFilter);
+      const paymentStatusParam =
+        normalizedPaymentFilter === "all" ? undefined : normalizedPaymentFilter;
+
       if (activeSearch) {
         data = await searchOrders(activeSearch.type, activeSearch.query, {
-          status: statusFilter === "all" ? undefined : statusFilter,
-          paymentStatus: paymentFilter === "all" ? undefined : paymentFilter
+          status: normalizedStatusFilter === "all" ? undefined : normalizedStatusFilter,
+          paymentStatus: paymentStatusParam
         });
-      } else if (statusFilter === "all") {
-        data = await getAllOrders(page, limit);
+      } else if (normalizedStatusFilter === "all") {
+        data = await getAllOrders(page, limit, paymentStatusParam);
       } else {
-        data = await getOrdersByStatus(statusFilter, page, limit);
+        data = await getOrdersByStatus(
+          normalizedStatusFilter,
+          page,
+          limit,
+          paymentStatusParam
+        );
       }
 
       const nextOrders = Array.isArray(data?.orders) ? data.orders : [];
-      setOrders(applyLocalFilters(nextOrders));
+      setOrders(nextOrders);
     } catch (error) {
       console.error(error);
       setOrders([]);
@@ -73,7 +91,7 @@ export default function AdminOrders() {
     } finally {
       setLoading(false);
     }
-  }, [activeSearch, applyLocalFilters, limit, page, paymentFilter, statusFilter]);
+  }, [activeSearch, limit, page, paymentFilter, statusFilter]);
 
   useEffect(() => {
     fetchOrders();
@@ -220,20 +238,20 @@ export default function AdminOrders() {
               Filter Payments
             </span>
             <div className="flex gap-2 flex-wrap">
-              {["all", "paid", "pending", "failed", "refunded"].map((payment) => (
+              {PAYMENT_FILTERS.map((payment) => (
                 <button
-                  key={payment}
+                  key={payment.value}
                   onClick={() => {
                     setPage(1);
-                    setPaymentFilter(payment);
+                    setPaymentFilter(payment.value);
                   }}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition capitalize ${
-                    paymentFilter === payment
+                    normalizePaymentStatusValue(paymentFilter) === payment.value
                       ? "bg-slate-200 text-blue-950 border border-blue-500/20"
                       : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                   }`}
                 >
-                  {payment === "all" ? "All Payments" : payment}
+                  {payment.label}
                 </button>
               ))}
             </div>
@@ -249,12 +267,17 @@ export default function AdminOrders() {
           <div className="space-y-6">
             {orders.map((order) => {
               // Contextual control flags to clear screen noise
-              const isPending = order.status === "pending";
-              const isPreparing = order.status === "preparing";
-              const isDelivered = order.status === "delivered";
-              const isCancelled = order.status === "cancelled";
-              const isPaid = order.payment_status === "paid";
-              const isRefunded = order.payment_status === "refunded";
+              const normalizedOrderStatus = normalizeStatusValue(order.status);
+              const normalizedPaymentStatus = normalizePaymentStatusValue(
+                order.payment_status
+              );
+
+              const isPending = normalizedOrderStatus === "pending";
+              const isPreparing = normalizedOrderStatus === "preparing";
+              const isDelivered = normalizedOrderStatus === "delivered";
+              const isCancelled = normalizedOrderStatus === "cancelled";
+              const isPaid = normalizedPaymentStatus === "paid";
+              const isRefunded = normalizedPaymentStatus === "refunded";
 
               return (
                 <div
