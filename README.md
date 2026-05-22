@@ -191,9 +191,6 @@ DineStack/
 │   │
 │   ├── schemas/
 │   ├── utils/
-│   ├── uploads/
-│   │   └── menu_items/
-│   │
 │   ├── main.py
 │   ├── requirements.txt
 │   └── Dockerfile
@@ -257,6 +254,7 @@ DineStack/
 │   ├── reservation-management.png
 │   └── mobile-responsiveness-ui.png
 │
+├── uploads
 ├── docker-compose.yml
 ├── .env
 └── README.md
