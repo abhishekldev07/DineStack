@@ -22,7 +22,11 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.environ["DATABASE_URL"]  # force Railway env
+raw_url = os.environ.get("DATABASE_URL")
+if raw_url and raw_url.startswith("postgresql://"):
+    DATABASE_URL = raw_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+else:
+    DATABASE_URL = raw_url
 
 engine = create_engine(DATABASE_URL)
 
