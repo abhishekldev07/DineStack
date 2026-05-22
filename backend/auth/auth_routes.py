@@ -125,16 +125,19 @@ async def register_user(
         role="customer"
     )
 
+    # ... Database save and logging above remains exactly the same ...
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    logger.info("Starting verification email send for %s", new_user.email)
-    await send_verification_email(
+    # --- UPDATED TO USE BACKGROUND TASKS ---
+    logger.info("Enqueuing verification email in background for %s", new_user.email)
+    background_tasks.add_task(
+        send_verification_email,
         new_user.email,
         f"{FRONTEND_URL}/verify-email?token={verification_token}"
     )
-    logger.info("Verification email sent successfully for %s", new_user.email)
+    logger.info("Registration API response returning immediately for %s", new_user.email)
 
     return {
         "message": "Verification email sent. Please verify your email before logging in."

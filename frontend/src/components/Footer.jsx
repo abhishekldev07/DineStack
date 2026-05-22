@@ -108,7 +108,7 @@ export default function Footer() {
             Contact
           </h3>
           <div className="mt-4 space-y-3 text-sm text-white/75">
-            <p>hello@dinestack.local</p>
+            <p>dinestack.app@gmail.com</p>
             <p>+1 (555) 012-3456</p>
             <p>Open daily · 10:00 AM to 10:00 PM</p>
           </div>
