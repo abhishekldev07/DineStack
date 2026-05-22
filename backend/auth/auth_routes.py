@@ -125,12 +125,10 @@ async def register_user(
         role="customer"
     )
 
-    # ... Database save and logging above remains exactly the same ...
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    # --- UPDATED TO USE BACKGROUND TASKS ---
     logger.info("Enqueuing verification email in background for %s", new_user.email)
     background_tasks.add_task(
         send_verification_email,
