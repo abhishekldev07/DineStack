@@ -11,7 +11,7 @@ async def send_email(email: str, subject: str, body: str):
     try:
         # Resend free tier gives you onboarding@resend.dev to test with
         # Once you verify your domain, you can change this to your custom domain
-        from_email = "DineStack <onboarding@resend.dev>"
+        from_email = "DineStack <no-reply@dinestack.abrdns.com>"
         
         # Call the Resend HTTP API to deliver the mail
         response = resend.Emails.send({
