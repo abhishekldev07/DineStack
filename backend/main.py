@@ -1,9 +1,10 @@
 import os
+import shutil
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from database.connection import engine, Base
 from sqlalchemy import text
-from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
 # Route Imports
@@ -24,6 +25,23 @@ from models.order_model import Order
 from models.reservation_model import Reservation
 from models.order_item_model import OrderItem
 from models.payment_model import Payment
+
+# --- AUTOMATIC VOLUME MIGRATION SCRIPT ---
+BACKUP_DIR = Path("./image_backup")
+VOLUME_DIR = Path("/app/uploads/menu_items")
+
+if BACKUP_DIR.exists():
+    # Create the internal volume structure if it doesn't exist
+    VOLUME_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Check if the volume disk is currently empty
+    if not any(VOLUME_DIR.iterdir()):
+        print("🚀 Volume is empty! Copying 39 images to permanent volume...")
+        for file_path in BACKUP_DIR.glob("*"):
+            if file_path.is_file():
+                shutil.copy(file_path, VOLUME_DIR / file_path.name)
+        print("✅ 39 Images successfully copied to live volume storage!")
+# -----------------------------------------
 
 # SINGLE INITIALIZATION OF FASTAPI
 app = FastAPI()
