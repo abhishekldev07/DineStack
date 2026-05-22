@@ -433,12 +433,13 @@ async def resend_verification(
 
     db.commit()
 
-    logger.info("Starting resend verification email send for %s", user.email)
-    await send_verification_email(
+    logger.info("Enqueuing resend verification email in background for %s", user.email)
+    background_tasks.add_task(
+        send_verification_email,
         user.email,
         f"{FRONTEND_URL}/verify-email?token={verification_token}"
     )
-    logger.info("Resend verification email sent successfully for %s", user.email)
+    logger.info("Resend verification API response returning immediately for %s", user.email)
 
     return {
         "message": "Verification email sent. Please check your inbox."
