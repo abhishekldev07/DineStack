@@ -29,6 +29,7 @@ export default function Checkout() {
   const [locationError, setLocationError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const deliveryAddressRef = useRef(null);
 
   const hasCoordinates = latitude !== null && longitude !== null;
@@ -144,6 +145,10 @@ export default function Checkout() {
   };
 
   const handleCashOnDelivery = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       setSubmitAttempted(true);
       setSubmitError("");
@@ -178,6 +183,8 @@ export default function Checkout() {
     } catch (error) {
       console.error(error);
       setSubmitError(extractErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -362,10 +369,10 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={handleCashOnDelivery}
-                  disabled={checkoutDisabled}
+                  disabled={checkoutDisabled || isSubmitting}
                   className="flex-1 sm:flex-initial rounded-full bg-white px-6 py-3 text-xs font-bold text-slate-950 transition-all duration-300 hover:bg-amber-200 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-300 disabled:hover:shadow-none disabled:hover:bg-slate-600"
                 >
-                  Cash on Delivery
+                  {isSubmitting ? "Placing Order..." : "Cash on Delivery"}
                 </button>
                 
                 <button
