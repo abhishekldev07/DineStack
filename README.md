@@ -101,13 +101,16 @@ FastAPI automatically generates interactive API documentation.
 - Swagger UI → `http://localhost:8000/docs`
 - ReDoc → `http://localhost:8000/redoc`
 
-## Deployment Ready
 
-- Dockerized frontend & backend
-- Persistent PostgreSQL volumes
-- Persistent image uploads
-- Environment-based configuration
-- Production-friendly project structure
+## Production Deployment
+
+DineStack is deployed and running live using a modern, decoupled cloud architecture:
+- **Frontend Hosting:** Deployed on **Vercel**, taking advantage of optimized static asset delivery, edge caching, and automated build pipelines.
+- **Backend API & Database:** Deployed on **Railway**, running the FastAPI instance via Docker inside a fully managed web container alongside a live, hosted **PostgreSQL** database instance.
+
+> **Security Note:** All production secrets—including the live `DATABASE_URL`, connection strings, and cryptographic `JWT_SECRET_KEY` variables—are securely encrypted and injected directly through the Vercel and Railway provider management dashboards. They are completely excluded from the public source code repository to protect system integrity.
+
+---
 
 ## Screenshots
 
@@ -176,6 +179,7 @@ DineStack/
 │   ├── models/
 │   │   ├── menu_model.py
 │   │   ├── order_model.py
+│   │   ├── order_item_model.py
 │   │   ├── reservation_model.py
 │   │   ├── payment_model.py
 │   │   ├── refresh_token_model.py
@@ -247,12 +251,22 @@ DineStack/
 │   └── Dockerfile
 │
 ├── screenshots/
-│   ├── home.png
-│   ├── menu.png
+│   ├── add-menu-item.png
 │   ├── admin-dashboard.png
+│   ├── admin-menu-management.png
+│   ├── cart.png
+│   ├── change-password.png
+│   ├── home.png
+│   ├── login.png
+│   ├── manage-users.png
+│   ├── menu.png
+│   ├── mobile-responsiveness-ui.png
+│   ├── my-orders.png
 │   ├── order-management.png
 │   ├── reservation-management.png
-│   └── mobile-responsiveness-ui.png
+│   ├── reservation.png
+│   ├── staff-menu-management.png
+│   └── user-profile.png
 │
 ├── uploads
 ├── docker-compose.yml
