@@ -245,14 +245,29 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
     if not item:
         raise HTTPException(status_code=404, detail="Menu item not found")
 
-    db.query(MenuItem).filter(MenuItem.id == item_id).update(
-        {"available": False}, 
-        synchronize_session="fetch"
-    )
-    
-    db.commit()
+    image_url = item.image_url
 
-    return {"message": f"'{item.name}' has been safely removed from the active menu."}
+    try:
+        # 1. SAFELY UNLINK PAST ORDERS (Don't delete them!)
+        # This updates past orders to point to NULL instead of ID 40, clearing the lock
+        from models.order_model import OrderItem
+        db.query(OrderItem).filter(OrderItem.menu_item_id == item_id).update(
+            {"menu_item_id": None},
+            synchronize_session="fetch"
+        )
+
+        # 2. PERMANENTLY REMOVE FROM MENU ITEMS TABLE
+        db.delete(item)
+        db.commit()
+
+        # 3. Clean up server storage disk
+        _delete_menu_image(image_url)
+
+        return {"message": "Menu item permanently deleted. Past order logs safely preserved."}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
 
 
 @router.get("/menu/{item_id}")

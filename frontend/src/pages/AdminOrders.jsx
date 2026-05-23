@@ -388,29 +388,33 @@ export default function AdminOrders() {
                       </div>
 
                       {/* ITEMS WRAPPER BOX */}
-                      <div className="mt-5 w-full rounded-xl bg-slate-950/60 p-4 border border-white/[0.02]">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                          Ordered Menu Items
-                        </h3>
-                        {order.items && order.items.length ? (
-                          <div className="space-y-3 divider-y divider-slate-800">
-                            {order.items.map((it, idx) => (
-                              <div key={idx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-sm border-b border-slate-800/50 pb-2 last:border-0 last:pb-0">
-                                <div>
-                                  <span className="font-medium text-slate-200">{it.name || "Item"}</span>
-                                  <span className="text-slate-500 mx-2 text-xs">× {it.quantity}</span>
-                                  <p className="text-xs text-slate-500">Rs. {it.price} each</p>
-                                </div>
-                                <div className="text-xs font-bold text-slate-300 whitespace-nowrap">
-                                  Subtotal: Rs. {it.subtotal}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-slate-500">No items specified in this invoice payload.</p>
-                        )}
-                      </div>
+                      {/* ITEMS WRAPPER BOX */}
+<div className="mt-5 w-full rounded-xl bg-slate-950/60 p-4 border border-white/[0.02]">
+  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+    Ordered Menu Items
+  </h3>
+  {order.items && order.items.length ? (
+    <div className="space-y-3 divider-y divider-slate-800">
+      {order.items.map((it, idx) => (
+        <div key={idx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-sm border-b border-slate-800/50 pb-2 last:border-0 last:pb-0">
+          <div>
+            {/* 🌟 IMPROVED ACTION FALLBACK FOR CLEAN ADMIN ACCOUNTING */}
+            <span className="font-medium text-slate-200">
+              {it.name ? it.name : <span className="text-rose-400 italic font-normal">Removed Dish</span>}
+            </span>
+            <span className="text-slate-500 mx-2 text-xs">× {it.quantity}</span>
+            <p className="text-xs text-slate-500">Rs. {it.price} each</p>
+          </div>
+          <div className="text-xs font-bold text-slate-300 whitespace-nowrap">
+            Subtotal: Rs. {it.subtotal}
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-sm text-slate-500">No items specified in this invoice payload.</p>
+  )}
+</div>
                     </div>
 
                     {/* RIGHT CONTAINER: CLEAN WORKFLOW ACTION BADGES */}

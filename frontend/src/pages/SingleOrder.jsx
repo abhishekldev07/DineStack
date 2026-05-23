@@ -161,15 +161,16 @@ export default function SingleOrder() {
                     key={item.menu_item_id}
                     className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition hover:bg-white/[0.01]"
                   >
-                    {/* Item Info columns */}
-                    <div className="min-w-0 flex-1">
-                      <h2 className="text-lg font-bold text-white leading-tight">
-                        {item.name}
-                      </h2>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Price per item: <span className="text-slate-300 font-mono font-medium">{formatCurrency(itemPrice)}</span>
-                      </p>
-                    </div>
+                   {/* Item Info columns */}
+<div className="min-w-0 flex-1">
+  <h2 className="text-lg font-bold text-white leading-tight">
+    {/* 🌟 If item has a valid name, show it. If it was unlinked, show the archive message */}
+    {item.name ? item.name : <span className="text-rose-400 font-normal italic">Dish No Longer Available</span>}
+  </h2>
+  <p className="text-xs text-slate-400 mt-1">
+    Price per item: <span className="text-slate-300 font-mono font-medium">{formatCurrency(itemPrice)}</span>
+  </p>
+</div>
 
                     {/* Quantity controls & dynamic adjustment triggers */}
                     <div className="flex flex-wrap items-center gap-5 justify-between md:justify-end">
