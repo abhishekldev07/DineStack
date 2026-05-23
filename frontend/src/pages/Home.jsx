@@ -29,6 +29,7 @@ export default function Home() {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [imageLoaded, setImageLoaded] = useState({});
 
 
   useEffect(() => {
@@ -185,10 +186,18 @@ export default function Home() {
               src={resolveMenuImageUrl(item.image_url) || fallbackImage}
               alt={item.name || "Menu item"}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              onLoad={() => setImageLoaded((s) => ({ ...s, [String(item.id)]: true }))}
               onError={(event) => {
                 event.currentTarget.src = fallbackImage;
+                setImageLoaded((s) => ({ ...s, [String(item.id)]: true }));
               }}
             />
+
+            {!imageLoaded[String(item.id)] && (
+              <div className="absolute inset-0">
+                <div className="h-full w-full animate-pulse bg-gradient-to-r from-slate-200/10 via-slate-200/8 to-slate-200/10" />
+              </div>
+            )}
 
             <div className="absolute left-4 top-4 rounded-full bg-black/80 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
               {item.category || "Uncategorized"}
@@ -408,25 +417,24 @@ export default function Home() {
             sm:p-4
           "
         >
-          <img
-            src={resolveMenuImageUrl(item.image_url) || fallbackImage}
-            alt={item.name || "Menu item"}
-            className="
-              h-16
-              w-16
-              shrink-0
-              rounded-2xl
-              object-cover
-              ring-1
-              ring-white/10
+          <div className="relative h-16 w-16 shrink-0 rounded-2xl ring-1 ring-white/10 overflow-hidden sm:h-20 sm:w-20">
+            <img
+              src={resolveMenuImageUrl(item.image_url) || fallbackImage}
+              alt={item.name || "Menu item"}
+              className="h-full w-full object-cover"
+              onLoad={() => setImageLoaded((s) => ({ ...s, [String(item.id)]: true }))}
+              onError={(event) => {
+                event.currentTarget.src = fallbackImage;
+                setImageLoaded((s) => ({ ...s, [String(item.id)]: true }));
+              }}
+            />
 
-              sm:h-20
-              sm:w-20
-            "
-            onError={(event) => {
-              event.currentTarget.src = fallbackImage;
-            }}
-          />
+            {!imageLoaded[String(item.id)] && (
+              <div className="absolute inset-0">
+                <div className="h-full w-full animate-pulse bg-gradient-to-r from-slate-200/10 via-slate-200/8 to-slate-200/10" />
+              </div>
+            )}
+          </div>
 
           <div className="min-w-0 flex-1 overflow-hidden">
             <p

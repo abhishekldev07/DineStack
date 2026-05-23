@@ -134,16 +134,7 @@ export default function ProfileCard({
               </p>
             </div>
 
-            {/* Created At */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                Created At
-              </p>
-
-              <p className="mt-2 text-lg font-semibold text-white">
-                {formatCreatedAt(profile?.created_at)}
-              </p>
-            </div>
+            {/* Created At (removed - duplicate of Member Since) */}
 
             {/* Orders */}
             {showOrderCount && role === "customer" ? (

@@ -41,6 +41,7 @@ const hasGpsCoordinates = (order) => {
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -90,6 +91,7 @@ export default function AdminOrders() {
       );
     } finally {
       setLoading(false);
+      setIsSubmitting(false);
     }
   }, [activeSearch, limit, page, paymentFilter, statusFilter]);
 
@@ -97,20 +99,26 @@ export default function AdminOrders() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     const trimmedQuery = searchInput.trim();
 
     if (!trimmedQuery) {
       setActiveSearch(null);
       setPage(1);
       setErrorMessage("");
+      setIsSubmitting(false);
       return;
     }
 
     if (searchType === "order" || searchType === "user") {
       if (!/^\d+$/.test(trimmedQuery)) {
         setErrorMessage("Search value must be a numeric ID");
+        setIsSubmitting(false);
         return;
       }
     }
@@ -124,6 +132,8 @@ export default function AdminOrders() {
   };
 
   const clearSearch = () => {
+    if (isSubmitting) return;
+
     setSearchInput("");
     setActiveSearch(null);
     setStatusFilter("all");
@@ -133,20 +143,32 @@ export default function AdminOrders() {
   };
 
   const handleStatusUpdate = async (orderId, status) => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       await updateOrderStatus(orderId, status);
       await fetchOrders();
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handlePaymentUpdate = async (paymentId, status) => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       await updatePaymentStatus(paymentId, status);
       await fetchOrders();
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -187,13 +209,15 @@ export default function AdminOrders() {
           <div className="flex gap-2">
             <button
               type="submit"
+              disabled={isSubmitting}
               className="flex-1 md:flex-initial bg-white text-slate-950 font-bold px-6 py-3 rounded-xl hover:bg-slate-200 transition whitespace-nowrap"
             >
-              Search
+              {isSubmitting ? "Processing..." : "Search"}
             </button>
             <button
               type="button"
               onClick={clearSearch}
+              disabled={isSubmitting}
               className="flex-1 md:flex-initial bg-slate-800 text-slate-300 font-semibold px-6 py-3 rounded-xl hover:bg-slate-700 border border-slate-700 transition whitespace-nowrap"
             >
               Clear
@@ -221,6 +245,7 @@ export default function AdminOrders() {
                     setPage(1);
                     setStatusFilter(status);
                   }}
+                  disabled={isSubmitting}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition capitalize ${
                     statusFilter === status
                       ? "bg-slate-200 text-blue-950 border border-blue-500/20"
@@ -245,6 +270,7 @@ export default function AdminOrders() {
                     setPage(1);
                     setPaymentFilter(payment.value);
                   }}
+                  disabled={isSubmitting}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition capitalize ${
                     normalizePaymentStatusValue(paymentFilter) === payment.value
                       ? "bg-slate-200 text-blue-950 border border-blue-500/20"
@@ -397,18 +423,20 @@ export default function AdminOrders() {
                       {isPending && (
                         <button
                           onClick={() => handleStatusUpdate(order.order_id, "preparing")}
+                          disabled={isSubmitting}
                           className="w-full text-center rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-amber-500"
                         >
-                          Accept & Prepare
+                          {isSubmitting ? "Processing..." : "Accept & Prepare"}
                         </button>
                       )}
 
                       {isPreparing && (
                         <button
                           onClick={() => handleStatusUpdate(order.order_id, "delivered")}
+                          disabled={isSubmitting}
                           className="w-full text-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-600 hover:text-white px-4 py-2 text-xs font-bold transition shadow-sm"
                         >
-                          Mark Delivered
+                          {isSubmitting ? "Processing..." : "Mark Delivered"}
                         </button>
                       )}
 
@@ -416,18 +444,20 @@ export default function AdminOrders() {
                       {!isPaid && !isCancelled && !isRefunded && order.payment_id && (
                         <button
                           onClick={() => handlePaymentUpdate(order.payment_id, "paid")}
+                          disabled={isSubmitting}
                           className="w-full text-center rounded-xl bg-slate-800 border border-slate-700 text-emerald-400 hover:bg-slate-700 px-4 py-2 text-xs font-bold transition"
                         >
-                          Mark Paid
+                          {isSubmitting ? "Processing..." : "Mark Paid"}
                         </button>
                       )}
 
                       {isDelivered && isPaid && order.payment_id && (
                         <button
                           onClick={() => handlePaymentUpdate(order.payment_id, "refunded")}
+                          disabled={isSubmitting}
                           className="w-full text-center rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 px-4 py-2 text-xs font-bold transition"
                         >
-                          Issue Refund
+                          {isSubmitting ? "Processing..." : "Issue Refund"}
                         </button>
                       )}
 
@@ -435,9 +465,10 @@ export default function AdminOrders() {
                       {(isPending || isPreparing) && (
                         <button
                           onClick={() => handleStatusUpdate(order.order_id, "cancelled")}
+                          disabled={isSubmitting}
                           className="w-full text-center rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-600 hover:text-white hover:border-transparent px-4 py-2 text-xs font-semibold transition"
                         >
-                          Cancel Order
+                          {isSubmitting ? "Processing..." : "Cancel Order"}
                         </button>
                       )}
 
@@ -461,7 +492,7 @@ export default function AdminOrders() {
           <div className="flex gap-4 mt-12 items-center justify-center">
             <button
               onClick={() => setPage(page - 1)}
-              disabled={page === 1}
+              disabled={page === 1 || isSubmitting}
               className="bg-slate-800 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold disabled:opacity-40 transition hover:bg-slate-700"
             >
               Previous
@@ -471,7 +502,7 @@ export default function AdminOrders() {
             </p>
             <button
               onClick={() => setPage(page + 1)}
-              disabled={orders.length < limit}
+              disabled={orders.length < limit || isSubmitting}
               className="bg-white text-slate-950 px-5 py-2 rounded-xl text-xs font-bold transition hover:bg-slate-200 disabled:opacity-40"
             >
               Next

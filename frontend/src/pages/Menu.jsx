@@ -30,6 +30,7 @@ export default function Menu() {
   const [highlightedItemId, setHighlightedItemId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [imageLoaded, setImageLoaded] = useState({});
   const itemRefs = useRef({});
 
   // Safety fallback wraps to prevent white screens if contexts or hooks evaluate to undefined
@@ -337,15 +338,24 @@ export default function Menu() {
                     } ${isHighlighted ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900" : ""}`}
                   >
                     {/* Image Header */}
-                    <div className="relative h-48 sm:h-52 overflow-hidden">
+                    <div className="relative h-48 sm:h-52 overflow-hidden bg-slate-800">
                       <img
                         src={resolveMenuImageUrl(item.image_url) || fallbackImage}
                         alt={item.name || "Menu item"}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onLoad={() => setImageLoaded((s) => ({ ...s, [item.id]: true }))}
                         onError={(event) => {
                           event.currentTarget.src = fallbackImage;
+                          setImageLoaded((s) => ({ ...s, [item.id]: true }));
                         }}
                       />
+
+                      {/* Skeleton overlay while image loads */}
+                      {!imageLoaded[String(item.id)] && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="h-full w-full animate-pulse bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800" />
+                        </div>
+                      )}
 
                       <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/75 px-3 py-1 text-xs font-semibold text-white/95 backdrop-blur">
                         <span>{item.category || "Uncategorized"}</span> 
