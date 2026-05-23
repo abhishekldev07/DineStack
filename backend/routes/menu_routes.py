@@ -248,19 +248,18 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
     image_url = item.image_url
 
     try:
-        # 1. SAFELY UNLINK PAST ORDERS (Don't delete them!)
-        # This updates past orders to point to NULL instead of ID 40, clearing the lock
-        from models.order_model import OrderItem
+       
+        from models.order_item_model import OrderItem
+        
         db.query(OrderItem).filter(OrderItem.menu_item_id == item_id).update(
             {"menu_item_id": None},
             synchronize_session="fetch"
         )
 
-        # 2. PERMANENTLY REMOVE FROM MENU ITEMS TABLE
         db.delete(item)
         db.commit()
 
-        # 3. Clean up server storage disk
+   
         _delete_menu_image(image_url)
 
         return {"message": "Menu item permanently deleted. Past order logs safely preserved."}
