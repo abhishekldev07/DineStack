@@ -21,7 +21,7 @@ export const refreshClient = axios.create({
 const AUTH_BYPASS_PATHS = [
   "/login",
   "/register",
-  "/refresh-token",
+  "/refresh-token", 
   "/logout",
   "/verify-email",
   "/resend-verification",
@@ -29,7 +29,10 @@ const AUTH_BYPASS_PATHS = [
   "/reset-password"
 ];
 
-const isBypassPath = (url = "") => AUTH_BYPASS_PATHS.some((path) => String(url).includes(path));
+const isBypassPath = (url = "") => {
+  const cleanUrl = String(url).split('?')[0]; // strip query params if any
+  return AUTH_BYPASS_PATHS.some((path) => cleanUrl.startsWith(path));
+};
 
 let refreshPromise = null;
 

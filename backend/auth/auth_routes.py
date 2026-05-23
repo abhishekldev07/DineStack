@@ -490,15 +490,12 @@ def reset_password(
     data: ResetPassword,
     db: Session = Depends(get_db)
 ):
-
     try:
-
         payload = jwt.decode(
             token,
-            "dinestacksecretkey",
+            RESET_PASSWORD_SECRET,  
             algorithms=["HS256"]
         )
-
         email = payload.get("email")
         pwd_sig = payload.get("pwd_sig")
 
