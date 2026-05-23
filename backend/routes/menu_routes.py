@@ -250,12 +250,12 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
     if not item:
         raise HTTPException(status_code=404, detail="Menu item not found")
 
-
-    item.available = False
+    db.query(MenuItem).filter(MenuItem.id == item_id).update(
+        {"available": False}, 
+        synchronize_session="fetch"
+    )
     
     db.commit()
-    db.refresh(item)
-
 
     return {"message": f"'{item.name}' has been safely removed from the active menu."}
 
