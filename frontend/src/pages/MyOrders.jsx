@@ -20,17 +20,19 @@ export default function MyOrders() {
   }
 
   const fetchOrders = async () => {
-
     try {
-
       const data = await getMyOrders();
-      setOrders(data);
+      
+      // 🌟 Sort: Newest orders (latest created_at) move to the top
+      const sortedOrders = [...data].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      setOrders(sortedOrders);
 
     } catch (error) {
-      
-
+      console.error("Failed to load order history:", error);
     } finally {
-
       setLoading(false);
     }
   };
