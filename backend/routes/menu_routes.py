@@ -194,38 +194,33 @@ def latest_items(db: Session = Depends(get_db)):
 
 @router.get("/menu")
 def get_menu_items(db: Session = Depends(get_db)):
-    # Only return available items to customers
-    items = db.query(MenuItem).filter(MenuItem.available == True).all()
+    # Remove the .filter() constraint completely
+    items = db.query(MenuItem).all()
     return items
-
 
 
 @router.get("/menu/category/{category_name}")
 def get_menu_by_category(category_name: str, db: Session = Depends(get_db)):
-
+    # Only filter by the requested category name
     items = db.query(MenuItem).filter(
-        MenuItem.category == category_name,
-        MenuItem.available == True
+        MenuItem.category == category_name
     ).all()
     return items
 
 
-# --- 3. UPDATE THE SEARCH ROUTE ---
 @router.get("/menu/search/{search_term}")
 def search_menu(search_term: str, db: Session = Depends(get_db)):
-
+    # Clean search filter
     items = db.query(MenuItem).filter(
-        MenuItem.name.ilike(f"%{search_term}%"),
-        MenuItem.available == True
+        MenuItem.name.ilike(f"%{search_term}%")
     ).all()
     return items
-
 
 
 @router.get("/menu/sort/{order}")
 def sort_menu(order: str, db: Session = Depends(get_db)):
-
-    base_query = db.query(MenuItem).filter(MenuItem.available == True)
+    # Base query without availability flags
+    base_query = db.query(MenuItem)
 
     if order == "asc":
         items = base_query.order_by(MenuItem.price.asc()).all()
