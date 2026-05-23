@@ -2,9 +2,6 @@ import API from "./api";
 
 export const getMenuItems = async () => {
 
-  const response = await API.get(
-    "/menu/latest"
-  );
-
+  const response = await API.get("/menu"); 
   return response.data;
 };
