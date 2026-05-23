@@ -31,7 +31,7 @@ const buildMenuFormData = (menuItem) => {
 };
 
 export const getAdminMenuItems = async () => {
-  const response = await API.get("/menu");
+  const response = await API.get("/menu/latest");
 
   return response.data;
 };
