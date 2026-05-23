@@ -191,66 +191,50 @@ def latest_items(db: Session = Depends(get_db)):
     return items
 
 
+
 @router.get("/menu")
 def get_menu_items(db: Session = Depends(get_db)):
-
-    items = db.query(MenuItem).all()
-
+    # Only return available items to customers
+    items = db.query(MenuItem).filter(MenuItem.available == True).all()
     return items
+
 
 
 @router.get("/menu/category/{category_name}")
 def get_menu_by_category(category_name: str, db: Session = Depends(get_db)):
 
     items = db.query(MenuItem).filter(
-        MenuItem.category == category_name
+        MenuItem.category == category_name,
+        MenuItem.available == True
     ).all()
-
     return items
 
 
+# --- 3. UPDATE THE SEARCH ROUTE ---
 @router.get("/menu/search/{search_term}")
 def search_menu(search_term: str, db: Session = Depends(get_db)):
 
     items = db.query(MenuItem).filter(
-        MenuItem.name.ilike(f"%{search_term}%")
+        MenuItem.name.ilike(f"%{search_term}%"),
+        MenuItem.available == True
     ).all()
-
     return items
+
 
 
 @router.get("/menu/sort/{order}")
 def sort_menu(order: str, db: Session = Depends(get_db)):
 
+    base_query = db.query(MenuItem).filter(MenuItem.available == True)
+
     if order == "asc":
-
-        items = db.query(MenuItem)\
-            .order_by(MenuItem.price.asc())\
-            .all()
-
+        items = base_query.order_by(MenuItem.price.asc()).all()
     elif order == "desc":
-
-        items = db.query(MenuItem)\
-            .order_by(MenuItem.price.desc())\
-            .all()
-
+        items = base_query.order_by(MenuItem.price.desc()).all()
     else:
         return {"error": "Invalid sort order"}
 
     return items
-
-
-@router.get("/menu/{item_id}")
-def get_single_menu_item(item_id: int, db: Session = Depends(get_db)):
-
-    item = db.query(MenuItem).filter(
-        MenuItem.id == item_id
-    ).first()
-
-    if not item:
-        return {"error": "Menu item not found"}
-
-    return item
 
 
 @router.delete(
@@ -261,23 +245,29 @@ def get_single_menu_item(item_id: int, db: Session = Depends(get_db)):
     ]
 )
 def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
-
-    item = db.query(MenuItem).filter(
-        MenuItem.id == item_id
-    ).first()
+    item = db.query(MenuItem).filter(MenuItem.id == item_id).first()
 
     if not item:
-        return {"error": "Menu item not found"}
+        raise HTTPException(status_code=404, detail="Menu item not found")
 
-    image_url = item.image_url
 
-    db.delete(item)
+    item.available = False
+    
     db.commit()
+    db.refresh(item)
 
-    _delete_menu_image(image_url)
 
-    return {"message": "Menu item deleted successfully"}
+    return {"message": f"'{item.name}' has been safely removed from the active menu."}
 
+
+@router.get("/menu/{item_id}")
+def get_single_menu_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(MenuItem).filter(MenuItem.id == item_id).first()
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+
+    return item
 
 @router.put(
     "/menu/{item_id}",
